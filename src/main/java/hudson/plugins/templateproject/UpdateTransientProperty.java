@@ -1,11 +1,10 @@
 package hudson.plugins.templateproject;
 
-import org.kohsuke.stapler.DataBoundConstructor;
-
 import hudson.Extension;
 import hudson.model.AbstractProject;
 import hudson.model.JobProperty;
 import hudson.model.JobPropertyDescriptor;
+import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
  * A property that is only used to trigger the transient actions creations 

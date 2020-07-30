@@ -4,39 +4,32 @@ import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.console.HyperlinkNote;
-import hudson.Util;
-import hudson.model.BuildListener;
-import hudson.model.Item;
-import hudson.model.TaskListener;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.Hudson;
+import hudson.model.Item;
 import hudson.model.Node;
 import hudson.model.Run;
+import hudson.model.TaskListener;
 import hudson.scm.ChangeLogParser;
 import hudson.scm.NullSCM;
 import hudson.scm.PollingResult;
 import hudson.scm.RepositoryBrowser;
+import hudson.scm.SCM;
 import hudson.scm.SCMDescriptor;
 import hudson.scm.SCMRevisionState;
-import hudson.scm.SCM;
 import hudson.security.AccessControlled;
 import hudson.tasks.Messages;
 import hudson.util.FormValidation;
-
 import java.io.File;
 import java.io.IOException;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
-
 import org.apache.commons.lang.StringUtils;
+import org.jenkinsci.plugins.multiplescms.MultiSCMRevisionState;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
-
-import java.util.List;
-import org.jenkinsci.plugins.multiplescms.MultiSCM;
-import org.jenkinsci.plugins.multiplescms.MultiSCMRevisionState;
 
 
 public class ProxySCM extends SCM {
