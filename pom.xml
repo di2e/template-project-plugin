@@ -8,7 +8,7 @@
 
   <groupId>org.jenkins-ci.plugins</groupId>
   <artifactId>template-project</artifactId>
-  <version>1.5.3-SNAPSHOT</version>
+  <version>1.5.3.0-di2e-SNAPSHOT</version>
   <packaging>hpi</packaging>
 
   <name>Template Project plugin</name>
