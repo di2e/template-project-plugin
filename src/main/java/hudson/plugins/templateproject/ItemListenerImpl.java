@@ -1,6 +1,8 @@
 package hudson.plugins.templateproject;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -12,6 +14,11 @@ import hudson.model.AbstractProject;
 import hudson.model.listeners.ItemListener;
 import hudson.tasks.BuildWrapper;
 import hudson.tasks.Builder;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -29,22 +36,54 @@ import java.util.logging.Logger;
 public class ItemListenerImpl extends ItemListener {
 	private static final Logger LOGGER = Logger.getLogger(ItemListenerImpl.class.getName());
 
+	private static final int NUM_PROJECTS_PARALLEL_LOAD = 100;
+
 	/**
 	 * Let's force the projects using either the ProxyPublisher or the ProxyBuilder
 	 * to update their transient actions.
 	 */
 	@Override
 	public void onLoaded() {
-		for (AbstractProject<?,?> project : Hudson.getInstance().getAllItems(AbstractProject.class)) {
-			if (project.getPublishersList().get(ProxyPublisher.class) != null ||
-					hasBuilder(project, ProxyBuilder.class)
-					|| hasBuildWrappers(project, ProxyBuildEnvironment.class)) {
+		List<AbstractProject> projects = Hudson.getInstance().getAllItems(AbstractProject.class);
+
+		if (projects.size() > NUM_PROJECTS_PARALLEL_LOAD) {
+			ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+			Collection<Future> futures = new ArrayList<Future>();
+			for ( final AbstractProject<?,?> project : projects) {
+				futures.add( executor.submit( new Runnable() {
+					@Override
+					public void run() {
+						loadProject( project );
+					}
+				} ) );
+			}
+			for (Future future : futures) {
 				try {
-					project.addProperty(new UpdateTransientProperty());
-					project.removeProperty(UpdateTransientProperty.class);
-				} catch (IOException e) {
-					LOGGER.severe(e.getMessage());
+					future.get();
+				} catch ( InterruptedException e ) {
+					LOGGER.log( Level.WARNING, "Project loading did not complete", e );
+				} catch ( ExecutionException e ) {
+					LOGGER.log( Level.WARNING, "Project loading did not complete", e );
 				}
+			}
+			executor.shutdown();
+		} else {
+			for ( final AbstractProject<?,?> project : projects) {
+				loadProject( project );
+			}
+		}
+	}
+
+	private void loadProject(AbstractProject<?,?> project) {
+		if (project.getPublishersList().get(ProxyPublisher.class) != null ||
+				hasBuilder(project, ProxyBuilder.class)
+				|| hasBuildWrappers(project, ProxyBuildEnvironment.class)) {
+			try {
+				LOGGER.info("Loading project: " + project.getDisplayNameOrNull());
+				project.addProperty(new UpdateTransientProperty());
+				project.removeProperty(UpdateTransientProperty.class);
+			} catch (IOException e) {
+				LOGGER.severe(e.getMessage());
 			}
 		}
 	}

@@ -1,14 +1,9 @@
 package hudson.plugins.templateproject;
 
-import hudson.EnvVars;
 import hudson.Util;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
-import hudson.model.BuildListener;
-import hudson.model.TaskListener;
 import hudson.model.Hudson;
-import hudson.util.LogTaskListener;
-import static java.util.logging.Level.INFO;
 import java.util.logging.Logger;
 
 public class TemplateUtils {

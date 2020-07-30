@@ -67,7 +67,6 @@ public class ProxyBuildEnvironment extends BuildWrapper implements DependencyDec
 	@Override
 	public final void buildDependencyGraph(final AbstractProject project, final DependencyGraph graph) {
 		final Item item = Hudson.getInstance().getItemByFullName(getProjectName());
-		AbstractProject<?, ?> templateProject = (AbstractProject) Hudson.getInstance().getItem(getProjectName());
 		if (item instanceof Project) {
 			// @TODO : see how important it is that this gets expanded projectName
 			for (BuildWrapper wrapper : getProjectBuildWrappers(null)) {
